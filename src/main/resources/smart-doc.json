@@ -1,0 +1,5 @@
+{
+  "outPath": "./api-doc",
+  "serverUrl": "http://127.0.0.1:7899/media/quick/v1",
+  "allInOne": true
+}

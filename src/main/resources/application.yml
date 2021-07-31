@@ -1,0 +1,11 @@
+server:
+  port: 7899
+  servlet:
+    context-path: /media/quick/v1
+spring:
+  application:
+    name: lyfzn-media-quick-server
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: xxx
