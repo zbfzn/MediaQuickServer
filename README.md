@@ -37,6 +37,7 @@ java -jar media-quick-server-1.1.jar
 控制台输出
 ![控制台输出](./images/console-out.png)
 
+#### 创作不易，给个star呗(✪ω✪)
 ## 注意
 <font style="color: #ff0000">仅供学习交流使用。 如用本程序于非法用途所导致的后果自负,与作者无关。</font>  
 
