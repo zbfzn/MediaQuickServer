@@ -9,7 +9,7 @@
     <version>${rversion}</version>
 
     <properties>
-        <rversion>1.1</rversion>
+        <rversion>1.2</rversion>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <jsoup.version>1.13.1</jsoup.version>
