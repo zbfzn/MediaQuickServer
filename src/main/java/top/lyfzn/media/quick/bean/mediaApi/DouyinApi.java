@@ -138,6 +138,9 @@ public class DouyinApi implements BaseMediaApi {
                         return ((String) videoUrl).replaceAll("/playwm/", "/play/");
                     }).collect(Collectors.toList());
                     video.setUrls(urls);
+                    // 音乐地址
+                    String videoMusicUrl = detail.getJSONObject("music").getJSONObject("play_url").getJSONArray("url_list").getString(0);
+                    video.setAudioUrl(videoMusicUrl);
                     media = video;
                     break;
                 default:

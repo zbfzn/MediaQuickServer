@@ -9,6 +9,10 @@ import java.util.List;
  * time: 19:07
  */
 public class Video extends Media {
+    /**
+     * 背景音乐
+     */
+    private String audioUrl;
 
     /**
      * 视频标题
@@ -24,6 +28,14 @@ public class Video extends Media {
      * 视频地址列表（多个备用）
      */
     private List<String> urls;
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
 
     public Video() {
         super(MediaType.VIDEO.toString());
