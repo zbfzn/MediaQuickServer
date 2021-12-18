@@ -139,8 +139,12 @@ public class DouyinApi implements BaseMediaApi {
                     }).collect(Collectors.toList());
                     video.setUrls(urls);
                     // 音乐地址
-                    String videoMusicUrl = detail.getJSONObject("music").getJSONObject("play_url").getJSONArray("url_list").getString(0);
-                    video.setAudioUrl(videoMusicUrl);
+                    try {
+                        String videoMusicUrl = detail.getJSONObject("music").getJSONObject("play_url").getJSONArray("url_list").getString(0);
+                        video.setAudioUrl(videoMusicUrl);
+                    } catch (NullPointerException nullPointerException) {
+                        // 无背景音乐链接
+                    }
                     media = video;
                     break;
                 default:
