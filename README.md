@@ -6,6 +6,7 @@
     抖音：单个视频、相册
     快手：单个视频、相册
     微博：单个视频
+    网易云音乐：单个视频
 ```
 接口文档：[api-doc](./api-doc/AllInOne-V202107311753.md)  
 安卓APP：[MediaQuickAndroid](https://github.com/zbfzn/MediaQuickAndroid)(须结合MediaQuickServer使用)

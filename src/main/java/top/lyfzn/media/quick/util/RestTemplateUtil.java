@@ -16,16 +16,20 @@ import javax.annotation.Resource;
  */
 @Component
 public class RestTemplateUtil {
-    @Resource
     private RestTemplate restTemplate;
 
-    public <T> HttpEntity<T> getForEntity(String url, HttpHeaders httpHeaders, Class<T> targetClazz) {
+    @Resource
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public <T> ResponseEntity<T> getForEntity(String url, HttpHeaders httpHeaders, Class<T> targetClazz) {
         HttpEntity<?> httpEntity = new HttpEntity<>(null, httpHeaders);
         return restTemplate.exchange(url, HttpMethod.GET, httpEntity, targetClazz);
     }
 
     public <T> T getForObject(String url, HttpHeaders httpHeaders, Class<T> tClass) {
-        return getForEntity(url,httpHeaders, tClass).getBody();
+        return this.getForEntity(url,httpHeaders, tClass).getBody();
     }
 
     public <T> ResponseEntity<T> postForEntity(String url, Object body, HttpHeaders httpHeaders, Class<T> tClass) {
