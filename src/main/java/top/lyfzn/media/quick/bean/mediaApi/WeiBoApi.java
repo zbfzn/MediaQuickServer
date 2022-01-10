@@ -38,7 +38,7 @@ public class WeiBoApi implements BaseMediaApi{
     @Autowired
     private RestTemplateUtil restTemplateUtil;
 
-    private static List<String> videoRateSortList = new LinkedList<>(Arrays.asList("高清 1080P", "高清 720P", "标清 480P", "流畅 360P"));
+    private static List<String> videoRateSortList = new LinkedList<>(Arrays.asList("流畅 360P", "标清 480P", "高清 720P", "高清 1080P"));
 
     @Override
     public boolean canParse(String flag) {

@@ -93,11 +93,11 @@ public class WangYiCloud implements BaseMediaApi {
                 video.setVideoCover(content.getJSONObject("video").getString("coverUrl"));
                 video.setTitle(content.getString("title"));
                 List<String> urls = new LinkedList<>();
-                // 获取视频链接，清晰度高的在前
+                // 获取视频链接，清晰度低的在前
                 content.getJSONObject("video").getJSONArray("urlInfos").stream().sorted((a, b) -> {
                     int resolutionA = ((JSONObject) a).getIntValue("resolution");
                     int resolutionB = ((JSONObject) b).getIntValue("resolution");
-                    return Integer.compare(resolutionB, resolutionA);
+                    return Integer.compare(resolutionA, resolutionB);
                 }).forEachOrdered(o -> {
                     JSONObject ob = (JSONObject) o;
                     urls.add(ob.getString("url"));
