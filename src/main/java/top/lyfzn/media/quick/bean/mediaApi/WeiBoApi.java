@@ -3,6 +3,7 @@ package top.lyfzn.media.quick.bean.mediaApi;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import top.lyfzn.media.quick.util.RestTemplateUtil;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -103,7 +105,10 @@ public class WeiBoApi implements BaseMediaApi{
         Video video = new Video();
         video.setTitle(data.getString("title"));
         video.setVideoCover("https:" + data.getString("cover_image"));
-        List<String> urls = videoRateSortList.stream().map(videoRateSort -> "https:" + data.getJSONObject("urls").getString(videoRateSort)).collect(Collectors.toList());
+        List<String> urls = videoRateSortList.stream()
+                .map(videoRateSort -> StringUtils.isEmpty(data.getJSONObject("urls").getString(videoRateSort)) ? null : "https:" + data.getJSONObject("urls").getString(videoRateSort))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         if (!urls.isEmpty()) {
             video.setUrls(urls);
         } else {
