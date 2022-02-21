@@ -1,11 +1,10 @@
 package top.lyfzn.media.quick.bean.mediaApi;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -16,8 +15,10 @@ import top.lyfzn.media.quick.bean.media.User;
 import top.lyfzn.media.quick.bean.media.Video;
 import top.lyfzn.media.quick.exception.CustomerException;
 import top.lyfzn.media.quick.util.RestTemplateUtil;
+import top.lyfzn.media.quick.util.UrlUtil;
 
 import javax.annotation.Resource;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,13 +26,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * 快手链接解析api
+ *
  * @author ZuoBro
  * date: 2021/5/20
  * time: 21:41
  */
 @Component
 public class KuaiShouApi implements BaseMediaApi {
-    private static final String MEDIA_API_TYPE = "kuaishou";
+    public static final String MEDIA_API_TYPE = "kuaishou";
 
     private static final Pattern ACCESS_PATTERN = Pattern.compile("(https?://v.kuaishou.com/[\\S]*)");
 
@@ -62,16 +65,24 @@ public class KuaiShouApi implements BaseMediaApi {
             httpHeaders.set("Referer", url);
             if (url.contains("v.kuaishou.com")) {
                 // 获取重定向后的地址
-                url = restTemplate.headForHeaders(url).getLocation().toString();
+                HttpHeaders headForResponse = restTemplate.headForHeaders(url);
+                url = headForResponse.getLocation().toString();
+                // 填充cookie
+                httpHeaders.set("Cookie", this.convertSetCookieToCookie(headForResponse));
+                // 设置Referer
+                httpHeaders.set("Referer", url);
             }
             if (url.contains("/fw/photo/")) {
                 return parseVideoOrPhotos(url, httpHeaders);
+            } else if (url.contains("/fw/long-video/")) {
+                // 长视频
+                return this.parseLongVideo(url, httpHeaders);
             }
         }
         throw new CustomerException("不支持该链接");
     }
 
-    public MediaParseResult parseVideoOrPhotos(String url, HttpHeaders headers) {
+    private MediaParseResult parseVideoOrPhotos(String url, HttpHeaders headers) {
         MediaParseResult mediaParseResult = new MediaParseResult();
         mediaParseResult.setMediaApiType(getMediaApiType());
 
@@ -140,5 +151,75 @@ public class KuaiShouApi implements BaseMediaApi {
         }
 
         throw new CustomerException("解析失败");
+    }
+
+    private MediaParseResult parseLongVideo(String url, HttpHeaders headers) {
+        MediaParseResult mediaParseResult = new MediaParseResult();
+        mediaParseResult.setMediaApiType(getMediaApiType());
+
+        // 获取domain(host)
+        URI uri = URI.create(url);
+        String host = uri.getHost();
+        // 通过接口获取数据
+        headers.set("Accept", "*/*");
+        headers.set("Content-Type", "application/json");
+        String requestApi = String.format("https://%s/rest/wd/photo/info?kpn=KUAISHOU&captchaToken=", host);
+        String postData = JSON.toJSONString(UrlUtil.getQueryParamMap(uri.getQuery()));
+        String content = restTemplateUtil.postForObject(requestApi, postData, headers, String.class);
+
+        JSONObject data = JSON.parseObject(content);
+        if (data.getIntValue("result") == 1) {
+            JSONObject photo = data.getJSONObject("photo");
+            // 设置用户信息
+            User user = new User();
+            user.setName(photo.getString("userName"));
+            user.setAvatar(photo.getString("headUrl"));
+            user.setDescription(photo.getJSONObject("verifiedDetail").getString("description"));
+
+            // 添加到结果中
+            mediaParseResult.setUser(user);
+            if (photo.getIntValue("type") == 1) {
+                // 长视频
+                // 处理视频
+                Video video = new Video();
+                video.setTitle(photo.getString("caption"));
+                video.setVideoCover(photo.getJSONArray("coverUrls").getJSONObject(0).getString("url"));
+                List<String> videoUrls = new LinkedList<>(photo.getJSONArray("mainMvUrls").stream().map(ob -> ((JSONObject) ob).getString("url")).collect(Collectors.toList()));
+                video.setUrls(videoUrls);
+                mediaParseResult.setMedia(video);
+                return mediaParseResult;
+            } else {
+                // 未适配
+                throw new CustomerException("暂不支持解析此类型资源");
+            }
+        } else {
+            throw new CustomerException("解析失败[获取数据失败]");
+        }
+    }
+
+    /**
+     * 将header中的Set-Cookie内容转为请求可用cookie串
+     *
+     * @param httpHeaders
+     * @return
+     */
+    private String convertSetCookieToCookie(HttpHeaders httpHeaders) {
+        List<String> cookieOriginList = httpHeaders.get("set-cookie");
+        if (cookieOriginList == null) {
+            return "";
+        }
+        StringBuilder cookie = new StringBuilder();
+        for (int i = 0; i < cookieOriginList.size(); i++) {
+            String setCookieStr = cookieOriginList.get(i);
+            int separatorIndex = setCookieStr.indexOf(';');
+            if (separatorIndex >= 0) {
+                String cookieKeyAndValue = setCookieStr.substring(0, separatorIndex);
+                cookie.append(cookieKeyAndValue);
+                if (i < cookieOriginList.size() - 1) {
+                    cookie.append("; ");
+                }
+            }
+        }
+        return cookie.toString();
     }
 }
