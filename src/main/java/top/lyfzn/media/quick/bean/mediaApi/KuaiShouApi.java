@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 public class KuaiShouApi implements BaseMediaApi {
     public static final String MEDIA_API_TYPE = "kuaishou";
 
-    private static final Pattern ACCESS_PATTERN = Pattern.compile("(https?://v.kuaishou.com/[\\S]*)");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("(https?://v\\.kuaishou\\.com/[\\S]*)");
 
     @Resource
     private RestTemplate restTemplate;
@@ -174,7 +175,9 @@ public class KuaiShouApi implements BaseMediaApi {
             User user = new User();
             user.setName(photo.getString("userName"));
             user.setAvatar(photo.getString("headUrl"));
-            user.setDescription(photo.getJSONObject("verifiedDetail").getString("description"));
+            JSONObject verifiedDetail = photo.getJSONObject("verifiedDetail");
+            // 如果没有作者信息则设为空串
+            user.setDescription(Objects.nonNull(verifiedDetail) ? verifiedDetail.getString("description") : "");
 
             // 添加到结果中
             mediaParseResult.setUser(user);

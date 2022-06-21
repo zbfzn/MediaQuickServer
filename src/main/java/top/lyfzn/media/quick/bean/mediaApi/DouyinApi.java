@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Component
 public class DouyinApi implements BaseMediaApi {
     private static final String MEDIA_API_TYPE = "douyin";
-    private static final Pattern FLAG_PATTERN = Pattern.compile("(https?://v.douyin.com/[\\S]*)|(https?://www.iesdouyin.com/[\\S]*)");
+    private static final Pattern FLAG_PATTERN = Pattern.compile("(https?://v\\.douyin\\.com/[^/]+/?)\\s|(https?://www\\.iesdouyin\\.com/[\\S]*)");
 
     @Resource
     private RestTemplate restTemplate;

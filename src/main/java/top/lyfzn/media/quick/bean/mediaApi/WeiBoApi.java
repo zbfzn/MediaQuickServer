@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @Component
 public class WeiBoApi implements BaseMediaApi{
     private static final String MEDIA_API_TYPE = "weibo";
-    private static final Pattern ACCESS_PATTERN = Pattern.compile("(https?://[\\S^.]*?video.weibo.com/[\\S]*)");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("(https?://[\\S^.]*?video\\.weibo\\.com/[\\S]*)");
 
     @Autowired
     private RestTemplate restTemplate;
